@@ -52,6 +52,27 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
+      <head>
+        {/* Apple Touch Icons */}
+        <link rel="apple-touch-icon" sizes="180x180" href="/ios/180.png" />
+        <link rel="apple-touch-icon" sizes="167x167" href="/ios/167.png" />
+        <link rel="apple-touch-icon" sizes="152x152" href="/ios/152.png" />
+        <link rel="apple-touch-icon" sizes="120x120" href="/ios/120.png" />
+        
+        {/* Favicon */}
+        <link rel="icon" type="image/png" sizes="32x32" href="/ios/32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/ios/16.png" />
+        
+        {/* Microsoft Tiles */}
+        <meta name="msapplication-TileColor" content="#10b981" />
+        <meta name="msapplication-TileImage" content="/windows11/SmallTile.scale-100.png" />
+        
+        {/* PWA Meta Tags */}
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="DietPlan" />
+      </head>
       <body className="antialiased">
         {children}
       </body>

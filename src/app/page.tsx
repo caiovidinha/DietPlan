@@ -60,6 +60,13 @@ export default function Home() {
   useEffect(() => {
     loadMeals();
     loadShoppingList();
+    
+    // Suporte a URL parameters para atalhos PWA
+    const params = new URLSearchParams(window.location.search);
+    const module = params.get('module');
+    if (module === 'shopping') {
+      setActiveModule('shopping');
+    }
   }, []);
 
   async function loadMeals() {

@@ -1,13 +1,14 @@
 # DietPlan - PWA Simplificado
 
-## ✅ Versão Atual: Simplificada e Prática
+## ✅ Versão Atual: Simplificada e Client-Side
 
 ### Mudanças Implementadas (17/01/2026)
 - ✅ Removida toda integração com IA
 - ✅ Interface unificada em página única com módulos
 - ✅ Banco de alimentos pré-definido com 150+ itens
 - ✅ Fluxo simplificado: Planejar → Gerar Lista → Marcar o que tem
-- ✅ Database otimizado (apenas 2 tabelas)
+- ✅ **Storage 100% client-side (localStorage)** - Funciona no Vercel!
+- ✅ PWA configurado e instalável
 
 ### Funcionalidades
 1. **Planejamento de Refeições**
@@ -20,14 +21,16 @@
    - Geração automática das refeições planejadas
    - Checkbox para marcar o que já tem
    - Organização por categoria
+   - Exportar para WhatsApp
 
 ### Arquitetura
 - **Frontend**: Página única (`/`) com 2 módulos (Refeições e Lista)
-- **Backend**: 2 APIs (`/api/meals`, `/api/shopping`)
-- **Database**: SQLite com 2 tabelas simples
+- **Storage**: localStorage (100% client-side, sem backend)
 - **Alimentos**: 150+ items em `/src/lib/food-database.ts`
+- **PWA**: manifest.json, ícones multi-plataforma, atalhos
 
-### Status: ✅ Pronto para Uso
-- Servidor: http://localhost:3000
-- Banco: Auto-criado em `dietplan.db`
-- PWA: Configurado e instalável
+### Status: ✅ Pronto para Deploy no Vercel
+- Servidor: http://localhost:3000 (dev)
+- Prod: https://diet-plan-alpha-eight.vercel.app
+- Storage: Tudo no navegador (localStorage)
+- PWA: Instalável em todos os dispositivos

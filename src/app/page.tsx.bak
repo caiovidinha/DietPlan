@@ -117,7 +117,7 @@ export default function Home() {
     }
   }
 
-  function saveMeal() {
+  async function saveMeal() {
     if (selectedIngredients.length === 0) {
       setModal({
         isOpen: true,
@@ -129,7 +129,15 @@ export default function Home() {
     }
 
     try {
-      addMeal(selectedDay, selectedMealType, selectedIngredients);
+      await fetch('/api/meals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dayOfWeek: selectedDay,
+          mealType: selectedMealType,
+          ingredients: selectedIngredients,
+        }),
+      });
       setSelectedIngredients([]);
       loadMeals();
       setModal({
@@ -149,15 +157,15 @@ export default function Home() {
     }
   }
 
-  function deleteMealById(id: number) {
+  async function deleteMeal(id: number) {
     setModal({
       isOpen: true,
       title: 'Confirmar',
       message: 'Deseja realmente remover esta refeição?',
       type: 'confirm',
-      onConfirm: () => {
+      onConfirm: async () => {
         try {
-          deleteMeal(id);
+          await fetch(`/api/meals?id=${id}`, { method: 'DELETE' });
           loadMeals();
         } catch (error) {
           console.error('Error deleting meal:', error);
@@ -166,15 +174,19 @@ export default function Home() {
     });
   }
 
-  function generateShoppingListFunc() {
+  async function generateShoppingList() {
     setModal({
       isOpen: true,
       title: 'Confirmar',
       message: 'Gerar lista de compras a partir das refeições planejadas?',
       type: 'confirm',
-      onConfirm: () => {
+      onConfirm: async () => {
         try {
-          generateShoppingListFromMeals();
+          await fetch('/api/shopping', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'generate' }),
+          });
           loadShoppingList();
           setActiveModule('shopping');
           setModal({
@@ -196,20 +208,28 @@ export default function Home() {
     });
   }
 
-  function toggleHasAtHome(id: number, currentValue: boolean) {
-    updateShoppingItemHasAtHome(id, !currentValue);
-    loadShoppingList();
+  async function toggleHasAtHome(id: number, currentValue: number) {
+    try {
+      await fetch('/api/shopping', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, hasAtHome: !currentValue }),
+      });
+      loadShoppingList();
+    } catch (error) {
+      console.error('Error updating item:', error);
+    }
   }
 
-  function clearShoppingListFunc() {
+  async function clearShoppingList() {
     setModal({
       isOpen: true,
       title: 'Confirmar',
       message: 'Deseja limpar toda a lista de compras?',
       type: 'confirm',
-      onConfirm: () => {
+      onConfirm: async () => {
         try {
-          clearShoppingList();
+          await fetch('/api/shopping', { method: 'DELETE' });
           loadShoppingList();
           setModal({
             isOpen: true,
@@ -241,7 +261,7 @@ export default function Home() {
       return;
     }
 
-    const itemsToBy = shoppingList.filter(item => !item.hasAtHome);
+    const itemsToBy = shoppingList.filter(item => !item.has_at_home);
     
     if (itemsToBy.length === 0) {
       setModal({
@@ -268,7 +288,7 @@ export default function Home() {
     Object.keys(byCategory).sort().forEach(category => {
       text += `*${category}*\n`;
       byCategory[category].forEach(item => {
-        text += `• ${item.foodName} - ${item.quantity} ${item.unit}\n`;
+        text += `• ${item.food_name} - ${item.quantity} ${item.unit}\n`;
       });
       text += '\n';
     });
@@ -309,12 +329,12 @@ export default function Home() {
   );
 
   const mealsByDay = DAYS_OF_WEEK.map((day, dayIndex) => {
-    const dayMeals = meals.filter(m => m.dayOfWeek === dayIndex);
+    const dayMeals = meals.filter(m => m.day_of_week === dayIndex);
     return { day, dayIndex, meals: dayMeals };
   });
 
-  const itemsToBy = shoppingList.filter(item => !item.hasAtHome);
-  const itemsAtHome = shoppingList.filter(item => item.hasAtHome);
+  const itemsToBy = shoppingList.filter(item => !item.has_at_home);
+  const itemsAtHome = shoppingList.filter(item => item.has_at_home);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800">
@@ -505,7 +525,7 @@ export default function Home() {
                 </h2>
                 {meals.length > 0 && (
                   <button
-                    onClick={generateShoppingListFunc}
+                    onClick={generateShoppingList}
                     className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm"
                   >
                     Gerar Lista de Compras
@@ -528,10 +548,10 @@ export default function Home() {
                           >
                             <div className="flex justify-between items-start mb-2">
                               <span className="font-semibold text-sm text-green-600 dark:text-green-400">
-                                {meal.mealType}
+                                {meal.meal_type}
                               </span>
                               <button
-                                onClick={() => deleteMealById(meal.id)}
+                                onClick={() => deleteMeal(meal.id)}
                                 className="text-red-500 hover:text-red-700"
                               >
                                 ×
@@ -572,7 +592,7 @@ export default function Home() {
                       📋 Exportar
                     </button>
                     <button
-                      onClick={clearShoppingListFunc}
+                      onClick={clearShoppingList}
                       className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm"
                     >
                       🗑️ Limpar
@@ -605,7 +625,7 @@ export default function Home() {
                         {itemsToBy.map((item) => (
                           <div
                             key={item.id}
-                            onClick={() => toggleHasAtHome(item.id, item.hasAtHome)}
+                            onClick={() => toggleHasAtHome(item.id, item.has_at_home)}
                             className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition-colors"
                           >
                             <div className="flex items-center gap-3 flex-1">
@@ -617,7 +637,7 @@ export default function Home() {
                               />
                               <div>
                                 <p className="font-medium text-gray-800 dark:text-white">
-                                  {item.foodName}
+                                  {item.food_name}
                                 </p>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">
                                   {item.quantity} {item.unit} • {item.category}
@@ -640,7 +660,7 @@ export default function Home() {
                         {itemsAtHome.map((item) => (
                           <div
                             key={item.id}
-                            onClick={() => toggleHasAtHome(item.id, item.hasAtHome)}
+                            onClick={() => toggleHasAtHome(item.id, item.has_at_home)}
                             className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                           >
                             <div className="flex items-center gap-3 flex-1">
@@ -652,7 +672,7 @@ export default function Home() {
                               />
                               <div>
                                 <p className="font-medium text-gray-800 dark:text-white line-through">
-                                  {item.foodName}
+                                  {item.food_name}
                                 </p>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">
                                   {item.quantity} {item.unit} • {item.category}

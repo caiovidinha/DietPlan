@@ -63,8 +63,8 @@ export default function Home() {
     
     // Suporte a URL parameters para atalhos PWA
     const params = new URLSearchParams(window.location.search);
-    const module = params.get('module');
-    if (module === 'shopping') {
+    const targetModule = params.get('module');
+    if (targetModule === 'shopping') {
       setActiveModule('shopping');
     }
   }, []);
